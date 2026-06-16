@@ -1,0 +1,28 @@
+name: mcPlugin2
+version: '${version}'
+
+main: org.plugin2.mcplugin2.McPlugin2
+api-version: '1.21.5'
+load: POSTWORLD
+commands:
+  spawnzombie:
+    description: Spawnt einen Zombie
+    usage: /spawnzombie
+  newGame:
+    description: erstellt ein neues Spiel
+    usage: /newGame <online player>
+  setGameLoc:
+    description: setzt die location von einem spiel
+    usage: /setgameloc <name>
+  setMaxGames:
+    description: setzt die maximalen spiele
+    usage: /setmaxgames <number>
+  duel:
+    description: sents a duel request to a player
+    usage: /duel <player>
+  acceptDuel:
+    description: sents a duel request to a player
+    usage: /acceptDuel <player>
+  setChessSpawn:
+    description: sents the spawn where players will be tped to after a match is over
+    usage: /setChessSpawn
