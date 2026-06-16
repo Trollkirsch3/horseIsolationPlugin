@@ -9,6 +9,7 @@ public class ChessGame {
     List<BlockDisplay> displays = new ArrayList<>();
     List<ItemDisplay> barrierDisplays = new ArrayList<>();
     List<TextDisplay> textDisplays = new ArrayList<>();
+    ItemDisplay [] horseDisplays = new ItemDisplay[2];
 
     int deletionCooldown = 5;
     Location location;

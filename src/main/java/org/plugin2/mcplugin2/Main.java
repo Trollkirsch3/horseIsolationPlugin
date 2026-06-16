@@ -30,7 +30,7 @@ public class Main {
             double z = Double.parseDouble(getVariable("gameSlot." + i+ ".z"));
             Location gameLoc = new Location(world, x, y, z);
             ChessGame game = new ChessGame(gameLoc, null, null, i);
-            GameVisualizer.visualizeGame(game, plugin);
+            GameVisualizer.visualizeField(game);
             freeGames.add(game);
         }
     }
@@ -132,7 +132,7 @@ public class Main {
                     ChessGame emptyGame = new ChessGame(game.location, null, null, game.id);
                     freeGames.add(emptyGame);
 
-                    GameVisualizer.visualizeField(emptyGame, plugin);
+                    GameVisualizer.visualizeField(emptyGame);
                 }
             }
         }

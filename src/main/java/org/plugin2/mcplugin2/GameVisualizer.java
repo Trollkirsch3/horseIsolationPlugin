@@ -100,8 +100,15 @@ public class GameVisualizer {
         int [] pLoc2 = BitField.getCoords(game.playerLocs [1]);
         tempLoc1.add(pLoc1 [0]+0.5,1.5,pLoc1[1]+0.5);
         tempLoc2.add(pLoc2[0]+0.5,1.5,pLoc2[1]+0.5);
-        game.barrierDisplays.add(SkullUtil.spawnCustomSkullDisplay(tempLoc1, "d9cb9c8b36273b5b4947f6002907dc6d4f75d429a696b8f7996cbbcb6b56f85f"));
-        game.barrierDisplays.add(SkullUtil.spawnCustomSkullDisplay(tempLoc2, "246104eddf634070a2be2cfc6b7adffdf3e851f74e0b0781a217edd7aba45b85"));
+        if (game.horseDisplays[0] != null){
+            game.horseDisplays[0].remove();
+        }
+        if (game.horseDisplays[1] != null){
+            game.horseDisplays[1].remove();
+        }
+        game.horseDisplays[0] = (SkullUtil.spawnCustomSkullDisplay(tempLoc1, "d9cb9c8b36273b5b4947f6002907dc6d4f75d429a696b8f7996cbbcb6b56f85f"));
+        game.horseDisplays[1] = (SkullUtil.spawnCustomSkullDisplay(tempLoc2, "246104eddf634070a2be2cfc6b7adffdf3e851f74e0b0781a217edd7aba45b85"));
+        game.horseDisplays [game.playerToMove-1].setGlowing(true);
     }
     static void visualizePossibleMoves(ChessGame game, JavaPlugin plugin){
         clearDisplays(game);
@@ -169,6 +176,12 @@ public class GameVisualizer {
     }
     static void delete(ChessGame game){
         clearDisplays(game);
+        if (game.horseDisplays[0] != null){
+            game.horseDisplays[0].remove();
+        }
+        if (game.horseDisplays[1] != null){
+            game.horseDisplays[1].remove();
+        }
         for (TextDisplay textDisplay : game.textDisplays) {
             textDisplay.remove();
         }
@@ -209,7 +222,7 @@ public class GameVisualizer {
 
         firework.setFireworkMeta(meta);
     }
-    static void visualizeField(ChessGame game, JavaPlugin plugin){
+    static void visualizeField(ChessGame game){
         Location loc = game.location.clone();
         boolean white = true;
         Location airLoc = loc.clone();
