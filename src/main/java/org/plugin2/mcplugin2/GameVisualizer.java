@@ -98,10 +98,10 @@ public class GameVisualizer {
         Location tempLoc2 = game.location.clone();
         int [] pLoc1 = BitField.getCoords(game.playerLocs [0]);
         int [] pLoc2 = BitField.getCoords(game.playerLocs [1]);
-        tempLoc1.add(pLoc1 [0],1,pLoc1[1]);
-        tempLoc2.add(pLoc2[0],1,pLoc2[1]);
-        SkullUtil.placeCustomSkull(tempLoc1, "d9cb9c8b36273b5b4947f6002907dc6d4f75d429a696b8f7996cbbcb6b56f85f");
-        SkullUtil.placeCustomSkull(tempLoc2, "246104eddf634070a2be2cfc6b7adffdf3e851f74e0b0781a217edd7aba45b85");
+        tempLoc1.add(pLoc1 [0]+0.5,1.5,pLoc1[1]+0.5);
+        tempLoc2.add(pLoc2[0]+0.5,1.5,pLoc2[1]+0.5);
+        game.barrierDisplays.add(SkullUtil.spawnCustomSkullDisplay(tempLoc1, "d9cb9c8b36273b5b4947f6002907dc6d4f75d429a696b8f7996cbbcb6b56f85f"));
+        game.barrierDisplays.add(SkullUtil.spawnCustomSkullDisplay(tempLoc2, "246104eddf634070a2be2cfc6b7adffdf3e851f74e0b0781a217edd7aba45b85"));
     }
     static void visualizePossibleMoves(ChessGame game, JavaPlugin plugin){
         clearDisplays(game);
