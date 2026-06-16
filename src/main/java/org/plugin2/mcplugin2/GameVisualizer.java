@@ -18,36 +18,7 @@ import java.util.Random;
 
 public class GameVisualizer {
     static void visualizeGame(ChessGame game, JavaPlugin plugin){
-        if (game.over){
 
-            Location loc = game.location.clone();
-            game.players [game.nextPlayer(game.playerToMove)-1].getWorld().playSound(
-                    game.players [game.nextPlayer(game.playerToMove)-1],
-                    Sound.BLOCK_NOTE_BLOCK_BELL,
-                    1.0f,
-                    1.0f
-            );
-            spawnWinFirework(loc.clone().add(8,1,0));
-            spawnWinFirework(loc.clone().add(0,1,0));
-            spawnWinFirework(loc.clone().add(0,1,8));
-            spawnWinFirework(loc.clone().add(8,1,8));
-
-            TextDisplay textDisplay = loc.getWorld().spawn(loc.clone().add(4, 3, 4), TextDisplay.class);
-            Player player = game.players[game.nextPlayer(game.playerToMove)-1];
-            Component text = Component.text(player.getName() + " won!", NamedTextColor.GREEN);
-            text.decorate(TextDecoration.BOLD);
-            textDisplay.text(text);
-            game.textDisplays.add(textDisplay);
-            textDisplay.setBillboard(TextDisplay.Billboard.CENTER); // dreht sich zum Spieler
-            textDisplay.setSeeThrough(false);
-            textDisplay.setShadowed(true);
-            textDisplay.setTransformation(new Transformation(
-                    new Vector3f(0f, 0f, 0f),          // Verschiebung
-                    new AxisAngle4f(0f, 0f, 1f, 0f),   // Rotation
-                    new Vector3f(3.5f, 3.5f, 3.5f),          // Größe
-                    new AxisAngle4f(0f, 0f, 1f, 0f)    // zweite Rotation
-            ));
-        }
         Location loc = game.location.clone();
         boolean white = true;
         Location airLoc = loc.clone();
@@ -109,6 +80,52 @@ public class GameVisualizer {
         game.horseDisplays[0] = (SkullUtil.spawnCustomSkullDisplay(tempLoc1, "d9cb9c8b36273b5b4947f6002907dc6d4f75d429a696b8f7996cbbcb6b56f85f"));
         game.horseDisplays[1] = (SkullUtil.spawnCustomSkullDisplay(tempLoc2, "246104eddf634070a2be2cfc6b7adffdf3e851f74e0b0781a217edd7aba45b85"));
         game.horseDisplays [game.playerToMove-1].setGlowing(true);
+        if (game.over){
+            tempLoc1 = game.location.clone();
+            tempLoc2 = game.location.clone();
+            pLoc1 = BitField.getCoords(game.playerLocs [0]);
+            pLoc2 = BitField.getCoords(game.playerLocs [1]);
+            tempLoc1.add(pLoc1 [0]+0.5,1.5,pLoc1[1]+0.5);
+            tempLoc2.add(pLoc2[0]+0.5,1.5,pLoc2[1]+0.5);
+            if (game.horseDisplays[0] != null){
+                game.horseDisplays[0].remove();
+            }
+            if (game.horseDisplays[1] != null){
+                game.horseDisplays[1].remove();
+            }
+            game.horseDisplays[0] = (SkullUtil.spawnCustomSkullDisplay(tempLoc1, "d9cb9c8b36273b5b4947f6002907dc6d4f75d429a696b8f7996cbbcb6b56f85f"));
+            game.horseDisplays[1] = (SkullUtil.spawnCustomSkullDisplay(tempLoc2, "246104eddf634070a2be2cfc6b7adffdf3e851f74e0b0781a217edd7aba45b85"));
+            ItemDisplay winningHorse = game.horseDisplays [game.nextPlayer(game.playerToMove)-1];
+            winningHorse.setGlowing(true);
+            winningHorse.setGlowColorOverride(Color.GREEN);
+            loc = game.location.clone();
+            game.players [game.nextPlayer(game.playerToMove)-1].getWorld().playSound(
+                    game.players [game.nextPlayer(game.playerToMove)-1],
+                    Sound.BLOCK_NOTE_BLOCK_BELL,
+                    1.0f,
+                    1.0f
+            );
+            spawnWinFirework(loc.clone().add(8,1,0));
+            spawnWinFirework(loc.clone().add(0,1,0));
+            spawnWinFirework(loc.clone().add(0,1,8));
+            spawnWinFirework(loc.clone().add(8,1,8));
+
+            TextDisplay textDisplay = loc.getWorld().spawn(loc.clone().add(4, 3, 4), TextDisplay.class);
+            Player player = game.players[game.nextPlayer(game.playerToMove)-1];
+            Component text = Component.text(player.getName() + " won!", NamedTextColor.GREEN);
+            text.decorate(TextDecoration.BOLD);
+            textDisplay.text(text);
+            game.textDisplays.add(textDisplay);
+            textDisplay.setBillboard(TextDisplay.Billboard.CENTER); // dreht sich zum Spieler
+            textDisplay.setSeeThrough(false);
+            textDisplay.setShadowed(true);
+            textDisplay.setTransformation(new Transformation(
+                    new Vector3f(0f, 0f, 0f),          // Verschiebung
+                    new AxisAngle4f(0f, 0f, 1f, 0f),   // Rotation
+                    new Vector3f(3.5f, 3.5f, 3.5f),          // Größe
+                    new AxisAngle4f(0f, 0f, 1f, 0f)    // zweite Rotation
+            ));
+        }
     }
     static void visualizePossibleMoves(ChessGame game, JavaPlugin plugin){
         clearDisplays(game);
