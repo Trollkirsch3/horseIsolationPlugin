@@ -2,8 +2,13 @@ package org.plugin2.mcplugin2;
 
 import org.bukkit.Location;
 import org.bukkit.entity.*;
+import org.bukkit.util.Transformation;
+import org.joml.AxisAngle4f;
+import org.joml.Vector3f;
 
 import java.util.*;
+
+import static java.awt.SystemColor.text;
 
 public class ChessGame {
     List<BlockDisplay> displays = new ArrayList<>();
@@ -11,7 +16,11 @@ public class ChessGame {
     List<TextDisplay> textDisplays = new ArrayList<>();
     ItemDisplay [] horseDisplays = new ItemDisplay[2];
 
-    int deletionCooldown = 5;
+    int ticksSpend [] = new int [2];
+
+    TextDisplay [] clockDisplay = new TextDisplay[2];
+    TextDisplay [] nameDisplay = new TextDisplay[2];
+    int deletionCooldown = 100;
     Location location;
     long field;
     int [] playerLocs = new int [2];
@@ -22,6 +31,8 @@ public class ChessGame {
     boolean over = false;
     int id;
     public ChessGame(Location location, Player player1, Player player2, int gameId){
+        ticksSpend [0] = 0;
+        ticksSpend [1] = 0;
         field = 0L;
         this.location = location.getBlock().getLocation();
         players [0] = player1;
@@ -40,6 +51,42 @@ public class ChessGame {
         field = field | BitField.bit(x1, z1);
         field = field | BitField.bit(x2, z2);
         id = gameId;
+        Location spawnLoc1 = location.clone().add(4, 1,-1);
+        Location spawnLoc2 = location.clone().add(4, 1,9);
+        clockDisplay [0]= GameVisualizer.spawnStaticText(spawnLoc1, "Time: ");
+        clockDisplay [1]= GameVisualizer.spawnStaticText(spawnLoc2, "Time: ");
+
+        clockDisplay [0].setTransformation(new Transformation(
+                new Vector3f(0f, 0f, 0f),        // Verschiebung
+                new AxisAngle4f(0f, 0f, 1f, 0f), // linke Rotation
+                new Vector3f(3f, 3f, 3f),        // Größe / Scale
+                new AxisAngle4f(0f, 0f, 1f, 0f)  // rechte Rotation
+        ));
+        clockDisplay [1].setTransformation(new Transformation(
+                new Vector3f(0f, 0f, 0f),        // Verschiebung
+                new AxisAngle4f(0f, 0f, 1f, 0f), // linke Rotation
+                new Vector3f(3f, 3f, 3f),        // Größe / Scale
+                new AxisAngle4f(0f, 0f, 1f, 0f)  // rechte Rotation
+        ));
+        clockDisplay[1].setRotation(180f, 0f);
+
+        Location spawnNameLoc1 = spawnLoc1.clone().add(0, 1,0);
+        Location spawnNameLoc2 = spawnLoc2.clone().add(0, 1,0);
+        nameDisplay [0] = GameVisualizer.spawnStaticText(spawnNameLoc1, "name1");
+        nameDisplay [1] = GameVisualizer.spawnStaticText(spawnNameLoc2, "name2");
+        nameDisplay [0].setTransformation(new Transformation(
+                new Vector3f(0f, 0f, 0f),        // Verschiebung
+                new AxisAngle4f(0f, 0f, 1f, 0f), // linke Rotation
+                new Vector3f(2f, 2f, 2f),        // Größe / Scale
+                new AxisAngle4f(0f, 0f, 1f, 0f)  // rechte Rotation
+        ));
+        nameDisplay [1].setTransformation(new Transformation(
+                new Vector3f(0f, 0f, 0f),        // Verschiebung
+                new AxisAngle4f(0f, 0f, 1f, 0f), // linke Rotation
+                new Vector3f(2f, 2f, 2f),        // Größe / Scale
+                new AxisAngle4f(0f, 0f, 1f, 0f)  // rechte Rotation
+        ));
+        nameDisplay[1].setRotation(180f, 0f);
     }
     public void move(int moveX, int moveZ, int player){
         if (player != playerToMove){

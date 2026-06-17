@@ -1,4 +1,5 @@
 package org.plugin2.mcplugin2;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,7 +19,17 @@ import java.util.Random;
 
 public class GameVisualizer {
     static void visualizeGame(ChessGame game, JavaPlugin plugin){
+        if (game.players[0] != null) {
+            game.nameDisplay[0].text(Component.text(game.players[0].getName(), NamedTextColor.GOLD));
+        } else {
+            game.nameDisplay[0].text(Component.text("Player 1", NamedTextColor.GRAY));
+        }
 
+        if (game.players[1] != null) {
+            game.nameDisplay[1].text(Component.text(game.players[1].getName(), NamedTextColor.GOLD));
+        } else {
+            game.nameDisplay[1].text(Component.text("Player 2", NamedTextColor.GRAY));
+        }
         Location loc = game.location.clone();
         boolean white = true;
         Location airLoc = loc.clone();
@@ -38,10 +49,10 @@ public class GameVisualizer {
                 int bitLoc = BitField.bitLoc(x,z);
                 removeDisplaysAboveBlock(tempLoc.getBlock());
                 if(tempWhite){
-                    tempLoc.getBlock().setType(Material.WHITE_CONCRETE);
+                    tempLoc.getBlock().setType(Material.POLISHED_DIORITE);
                 }
                 else{
-                    tempLoc.getBlock().setType(Material.BLACK_CONCRETE);
+                    tempLoc.getBlock().setType(Material.POLISHED_BLACKSTONE);
                 }
                 tempWhite = !tempWhite;
 
@@ -97,7 +108,7 @@ public class GameVisualizer {
             game.horseDisplays[1] = (SkullUtil.spawnCustomSkullDisplay(tempLoc2, "246104eddf634070a2be2cfc6b7adffdf3e851f74e0b0781a217edd7aba45b85"));
             ItemDisplay winningHorse = game.horseDisplays [game.nextPlayer(game.playerToMove)-1];
             winningHorse.setGlowing(true);
-            winningHorse.setGlowColorOverride(Color.GREEN);
+            winningHorse.setGlowColorOverride(Color.LIME);
             loc = game.location.clone();
             game.players [game.nextPlayer(game.playerToMove)-1].getWorld().playSound(
                     game.players [game.nextPlayer(game.playerToMove)-1],
@@ -131,9 +142,9 @@ public class GameVisualizer {
         clearDisplays(game);
         int [] possible = new int [8];
         long possibleMoves = BitField.getPossibleMoves(game.field, game.playerLocs[game.playerToMove - 1]);
-        BitField.bitMovesToArray(possibleMoves, possible);
-        for (int move : possible){
-            if (move == 0){continue;}
+        int count = BitField.bitMovesToArray(possibleMoves, possible);
+        for (int i = 0; i < count; i++){
+            int move = possible [i];
             Location moveLoc = game.location.clone();
             moveLoc.setYaw(0f);
             moveLoc.setPitch(0f);
@@ -193,6 +204,10 @@ public class GameVisualizer {
     }
     static void delete(ChessGame game){
         clearDisplays(game);
+        game.clockDisplay[0].remove();
+        game.clockDisplay[1].remove();
+        game.nameDisplay[0].remove();
+        game.nameDisplay[1].remove();
         if (game.horseDisplays[0] != null){
             game.horseDisplays[0].remove();
         }
@@ -256,14 +271,36 @@ public class GameVisualizer {
                 int bitLoc = BitField.bitLoc(x,z);
                 removeDisplaysAboveBlock(tempLoc.getBlock());
                 if(tempWhite){
-                    tempLoc.getBlock().setType(Material.WHITE_CONCRETE);
+                    tempLoc.getBlock().setType(Material.POLISHED_DIORITE);
                 }
                 else{
-                    tempLoc.getBlock().setType(Material.BLACK_CONCRETE);
+                    tempLoc.getBlock().setType(Material.POLISHED_BLACKSTONE);
                 }
                 tempWhite = !tempWhite;
 
             }
         }
+    }
+    public static TextDisplay spawnStaticText(Location loc, String text) {
+        TextDisplay display = loc.getWorld().spawn(loc, TextDisplay.class);
+
+        display.text(Component.text(text, NamedTextColor.GREEN));
+
+        // Wichtig: Text dreht sich NICHT automatisch zum Spieler
+        display.setBillboard(TextDisplay.Billboard.FIXED);
+
+        // Optional
+        display.setShadowed(true);
+        display.setSeeThrough(false);
+        display.setGravity(false);
+
+        return display;
+    }
+    public static String formatTicks(int ticks){
+        double s = Math.floor(ticks/20);
+        int minutes = (int) Math.floor(s /60);
+        int seconds = (int) Math.floor(s - minutes * 60);
+        String text = minutes + " : " + seconds;
+        return text;
     }
 }

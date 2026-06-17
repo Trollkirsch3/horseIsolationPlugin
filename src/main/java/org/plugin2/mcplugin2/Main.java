@@ -1,11 +1,13 @@
 package org.plugin2.mcplugin2;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.*;
 
@@ -48,6 +50,33 @@ public class Main {
         return plugin.getConfig().getString("variables." + name);
     }
     public void reloadGames(){
+        for (ChessGame game : freeGames) {
+            if (game == null) continue;
+
+            if (game.clockDisplay[0] != null) {
+                game.clockDisplay[0].remove();
+            }
+
+            if (game.clockDisplay[1] != null) {
+                game.clockDisplay[1].remove();
+            }
+
+            if (game.nameDisplay[0] != null) {
+                game.nameDisplay[0].remove();
+            }
+
+            if (game.nameDisplay[1] != null) {
+                game.nameDisplay[1].remove();
+            }
+
+            if (game.horseDisplays[0] != null) {
+                game.horseDisplays[0].remove();
+            }
+
+            if (game.horseDisplays[1] != null) {
+                game.horseDisplays[1].remove();
+            }
+        }
         freeGames.clear();
         for (int i = 1; i <= maxSlot; i++){
             String worldName = getVariable("gameSlot." + i+ ".world");
@@ -61,9 +90,9 @@ public class Main {
             double z = Double.parseDouble(getVariable("gameSlot." + i+ ".z"));
             Location gameLoc = new Location(world, x, y, z);
             ChessGame game = new ChessGame(gameLoc, null, null, i);
-            GameVisualizer.visualizeGame(game, plugin);
+            //GameVisualizer.visualizeGame(game, plugin);
             freeGames.add(game);
-            GameVisualizer.visualizeGame(game, plugin);
+            GameVisualizer.visualizeField(game);
         }
     }
     public void checkGames() {
@@ -75,9 +104,26 @@ public class Main {
             if (game == null) {
                 continue;
             }
+            int timelimit = 1200;
+
+            for (int p = 0; p < 2; p++) {
+                int remainingTicks = timelimit - game.ticksSpend[p];
+
+                String time = GameVisualizer.formatTicks(remainingTicks);
+
+                if (game.clockDisplay[p] != null) {
+                    game.clockDisplay[p].text(Component.text("Time: " + time));
+                }
+            }
 
             if (!game.over) {
-                if (random.nextInt(100) > 94 && game.players[0] != null) {
+                if(game.ticksSpend [game.playerToMove-1]++ > timelimit){
+                    game.over = true;
+                    String timeoutName = game.players[game.playerToMove-1].getName();
+                    game.players [0].sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize("&cGame | &c&l" + timeoutName+ "&c&ltimed out!"));
+                    game.players [1].sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize("&cGame | &c&l" + timeoutName+ "&c&l timed out!"));
+                }
+                if (random.nextInt(2000) > 1998 && game.players[0] != null) {
                     Location horse1Loc = game.location.clone();
                     int l = game.playerLocs[0];
                     int[] loc1 = BitField.getCoords(l);
@@ -92,7 +138,7 @@ public class Main {
                     );
                 }
 
-                if (random.nextInt(100) > 94 && game.players[1] != null) {
+                if (random.nextInt(2000) > 1998 && game.players[1] != null) {
                     Location horse2Loc = game.location.clone();
                     int l = game.playerLocs[1];
                     int[] loc2 = BitField.getCoords(l);
