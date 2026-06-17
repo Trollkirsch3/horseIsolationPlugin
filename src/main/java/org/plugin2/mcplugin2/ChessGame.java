@@ -11,8 +11,8 @@ import java.util.*;
 import static java.awt.SystemColor.text;
 
 public class ChessGame {
-    List<BlockDisplay> displays = new ArrayList<>();
-    List<ItemDisplay> barrierDisplays = new ArrayList<>();
+    List<UUID> displays = new ArrayList<>();
+    List<UUID> barrierDisplays = new ArrayList<>();
     List<TextDisplay> textDisplays = new ArrayList<>();
     ItemDisplay [] horseDisplays = new ItemDisplay[2];
 
@@ -55,6 +55,10 @@ public class ChessGame {
         Location spawnLoc2 = location.clone().add(4, 1,9);
         clockDisplay [0]= GameVisualizer.spawnStaticText(spawnLoc1, "Time: ");
         clockDisplay [1]= GameVisualizer.spawnStaticText(spawnLoc2, "Time: ");
+        clockDisplay [0].addScoreboardTag("chess_entity");
+        clockDisplay[0].addScoreboardTag("chess_slot_" + id);
+        clockDisplay [1].addScoreboardTag("chess_entity");
+        clockDisplay[1].addScoreboardTag("chess_slot_" + id);
 
         clockDisplay [0].setTransformation(new Transformation(
                 new Vector3f(0f, 0f, 0f),        // Verschiebung
@@ -74,6 +78,10 @@ public class ChessGame {
         Location spawnNameLoc2 = spawnLoc2.clone().add(0, 1,0);
         nameDisplay [0] = GameVisualizer.spawnStaticText(spawnNameLoc1, "name1");
         nameDisplay [1] = GameVisualizer.spawnStaticText(spawnNameLoc2, "name2");
+        nameDisplay [0].addScoreboardTag("chess_entity");
+        nameDisplay[0].addScoreboardTag("chess_slot_" + id);
+        nameDisplay [1].addScoreboardTag("chess_entity");
+        nameDisplay[1].addScoreboardTag("chess_slot_" + id);
         nameDisplay [0].setTransformation(new Transformation(
                 new Vector3f(0f, 0f, 0f),        // Verschiebung
                 new AxisAngle4f(0f, 0f, 1f, 0f), // linke Rotation

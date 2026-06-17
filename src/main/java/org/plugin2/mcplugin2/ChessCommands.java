@@ -29,6 +29,9 @@ public class ChessCommands implements CommandExecutor {
         switch (command.getName().toLowerCase()) {
 
             case "newgame":
+                if (true){
+                    return true;
+                }
                 if (!(sender instanceof Player)) {
                     sender.sendMessage("Nur Spieler können diesen Command benutzen.");
                     return true;
@@ -37,7 +40,7 @@ public class ChessCommands implements CommandExecutor {
                 Player player2 = Bukkit.getPlayer(args[0]);
 
                 if (player2 == null) {
-                    player.sendMessage("This play is not online.");
+                    player.sendMessage("This player is not online.");
                     return true;
                 }
                 ChessGame game = main.getNewGame();
@@ -68,13 +71,15 @@ public class ChessCommands implements CommandExecutor {
                 main.games.add(game);
                 GameVisualizer.visualizeGame(game, plugin);
                 GameVisualizer.visualizePossibleMoves(game, plugin);
-                main.freeGames.remove(game);
                 break;
 
             case "setgameloc":
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage("Nur Spieler können diesen Command benutzen.");
+                    sender.sendMessage("Only players can use this command.");
                     return true;
+                }
+                if (args.length > 0){
+                    return false;
                 }
                 player = (Player) sender;
                 main.setVariable("gameSlot." + args [0]+ ".world", player.getLocation().getWorld().getName());
@@ -85,59 +90,80 @@ public class ChessCommands implements CommandExecutor {
                 break;
 
             case "setmaxgames":
+                if (args.length > 0){
+                    return false;
+                }
                 int amount = Integer.parseInt(args [0]);
                 main.setIntVariable("maxSlots", amount);
                 main.maxSlot = Integer.parseInt(args [0]);
                 main.reloadGames();
                 break;
             case "duel":
+                if (args.length > 0){
+                    return false;
+                }
                 if (!(sender instanceof Player)) {
                     sender.sendMessage("Nur Spieler können diesen Command benutzen.");
                     return true;
                 }
                 player = (Player) sender;
                 Player challenged = Bukkit.getPlayer(args [0]);
+                if (sender == player){
+                    if (!sender.hasPermission("chess.admin")){
+                        player.sendMessage("§cYou can not duel yourself");
+                        return true;
+                    }
+                    else{
+                        player.sendMessage("§aAdmins are allowed to play against them self");
+                    }
+                }
                 if (challenged == null || !challenged.isOnline()) {
-                    sender.sendMessage("This player is not online!");
+                    sender.sendMessage("§cThis player is not online!");
                     return true;
                 }
                 if(main.isInGame(player)|| main.isInGame(challenged)){
-                    sender.sendMessage("Duel request canceled: a player is not available");
+                    sender.sendMessage("§cDuel request canceled: a player is not available");
                     return true;
                 }
                 main.gameRequests.put(challenged.getUniqueId(), player.getUniqueId());
-                challenged.sendMessage(player.getName() + " challenged you to a duel: /duelaccept " + player.getName());
+                challenged.sendMessage("§a" + player.getName() + " challenged you to a duel: /duelaccept " + player.getName());
                 break;
             case "acceptduel":
-
+                if (args.length > 0){
+                    return false;
+                }
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage("Nur Spieler können diesen Command benutzen.");
                     return true;
                 }
                 player = (Player) sender;
                 UUID requesterUUID = main.gameRequests.get(player.getUniqueId());
                 if (requesterUUID == null) {
-                    player.sendMessage("You do not have any duel requests");
+                    player.sendMessage("§cYou do not have any duel requests");
                     return true;
+                }
+                if (sender == player){
+                    if (!sender.hasPermission("chess.admin")){
+                        player.sendMessage("§cYou can not duel yourself");
+                        return true;
+                    }
+                    else{
+                        player.sendMessage("§aAdmins are allowed to play against them self");
+                    }
                 }
                 player2 = Bukkit.getPlayer(requesterUUID);
                 if (player2 == null || !player2.isOnline()) {
-                    sender.sendMessage("This player is not online!");
+                    sender.sendMessage("§cThis player is not online!");
                     return true;
                 }
                 main.gameRequests.remove(player.getUniqueId());
                 if(main.isInGame(player)|| main.isInGame(player2)){
-                    sender.sendMessage("Duel request canceled: a player is not available");
-                    return true;
-                }
-                if (player2 == null || !player2.isOnline()) {
-                    player.sendMessage("This player is not online.");
+                    sender.sendMessage("§cDuel request canceled: a player is not available");
                     return true;
                 }
                 game = main.getNewGame();
 
                 if (game == null) {
-                    player.sendMessage("Kein freier Spielslot verfügbar.");
+                    player.sendMessage("§cThere are no free games!");
                     return true;
                 }
                 game.players [0] = player;
@@ -162,7 +188,6 @@ public class ChessCommands implements CommandExecutor {
                 main.games.add(game);
                 GameVisualizer.visualizeGame(game, plugin);
                 GameVisualizer.visualizePossibleMoves(game, plugin);
-                main.freeGames.remove(game);
                 break;
             case "setchessspawn":
                 if (!(sender instanceof Player)) {

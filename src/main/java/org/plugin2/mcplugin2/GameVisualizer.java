@@ -16,6 +16,7 @@ import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.Random;
+import java.util.UUID;
 
 public class GameVisualizer {
     static void visualizeGame(ChessGame game, JavaPlugin plugin){
@@ -30,12 +31,13 @@ public class GameVisualizer {
         } else {
             game.nameDisplay[1].text(Component.text("Player 2", NamedTextColor.GRAY));
         }
+        removeTempEntitiesOnField(game);
         Location loc = game.location.clone();
         boolean white = true;
         Location airLoc = loc.clone();
         airLoc.add(0,1,0);
-        for (ItemDisplay barrier : game.barrierDisplays){
-            barrier.remove();
+        for (UUID barrierUUID : game.barrierDisplays){
+            Bukkit.getEntity(barrierUUID).remove();
         }
         for (int x = 0; x<8; x++){
             white = !white;
@@ -47,7 +49,7 @@ public class GameVisualizer {
                 tempAirLoc.add(x,0,z);
                 tempAirLoc.getBlock().setType(Material.AIR);
                 int bitLoc = BitField.bitLoc(x,z);
-                removeDisplaysAboveBlock(tempLoc.getBlock());
+                //removeDisplaysAboveBlock(tempLoc.getBlock());
                 if(tempWhite){
                     tempLoc.getBlock().setType(Material.POLISHED_DIORITE);
                 }
@@ -68,7 +70,11 @@ public class GameVisualizer {
                             new Vector3f(1f, 1f, 1f), // Größe
                             new AxisAngle4f(0f, 0f, 1f, 0f) // keine zweite Rotation
                     ));
-                    game.barrierDisplays.add(display);
+                    display.addScoreboardTag("chess_entity");
+                    display.addScoreboardTag("chess_slot_" + game.id);
+                    display.addScoreboardTag("chess_temp");
+                    game.barrierDisplays.add(display.getUniqueId());
+
                     //display.setGlowing(true);
                     //display.setVisibleByDefault(false);
                     //game.getCurrentPlayer().showEntity(plugin, display);
@@ -90,6 +96,13 @@ public class GameVisualizer {
         }
         game.horseDisplays[0] = (SkullUtil.spawnCustomSkullDisplay(tempLoc1, "d9cb9c8b36273b5b4947f6002907dc6d4f75d429a696b8f7996cbbcb6b56f85f"));
         game.horseDisplays[1] = (SkullUtil.spawnCustomSkullDisplay(tempLoc2, "246104eddf634070a2be2cfc6b7adffdf3e851f74e0b0781a217edd7aba45b85"));
+        game.horseDisplays[0].addScoreboardTag("chess_entity");
+        game.horseDisplays[0].addScoreboardTag("chess_slot_" + game.id);
+        game.horseDisplays[0].addScoreboardTag("chess_temp");
+
+        game.horseDisplays[1].addScoreboardTag("chess_entity");
+        game.horseDisplays[1].addScoreboardTag("chess_slot_" + game.id);
+        game.horseDisplays[1].addScoreboardTag("chess_temp");
         game.horseDisplays [game.playerToMove-1].setGlowing(true);
         if (game.over){
             tempLoc1 = game.location.clone();
@@ -106,6 +119,8 @@ public class GameVisualizer {
             }
             game.horseDisplays[0] = (SkullUtil.spawnCustomSkullDisplay(tempLoc1, "d9cb9c8b36273b5b4947f6002907dc6d4f75d429a696b8f7996cbbcb6b56f85f"));
             game.horseDisplays[1] = (SkullUtil.spawnCustomSkullDisplay(tempLoc2, "246104eddf634070a2be2cfc6b7adffdf3e851f74e0b0781a217edd7aba45b85"));
+            game.horseDisplays[0].addScoreboardTag("chess_temp");
+            game.horseDisplays[1].addScoreboardTag("chess_temp");
             ItemDisplay winningHorse = game.horseDisplays [game.nextPlayer(game.playerToMove)-1];
             winningHorse.setGlowing(true);
             winningHorse.setGlowColorOverride(Color.LIME);
@@ -116,6 +131,14 @@ public class GameVisualizer {
                     1.0f,
                     1.0f
             );
+            game.players [game.playerToMove-1].getWorld().playSound(
+                    game.players [game.nextPlayer(game.playerToMove)-1],
+                    Sound.BLOCK_NOTE_BLOCK_BELL,
+                    1.0f,
+                    1.0f
+            );
+            game.players [game.nextPlayer(game.playerToMove-1)].playSound(game.players [game.nextPlayer(game.playerToMove-1)].getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 1.0f);
+            game.players [game.playerToMove-1].playSound(game.players [game.playerToMove-1].getLocation(), Sound.ITEM_SHIELD_BREAK, 0.5f, 1.0f);
             spawnWinFirework(loc.clone().add(8,1,0));
             spawnWinFirework(loc.clone().add(0,1,0));
             spawnWinFirework(loc.clone().add(0,1,8));
@@ -136,6 +159,8 @@ public class GameVisualizer {
                     new Vector3f(3.5f, 3.5f, 3.5f),          // Größe
                     new AxisAngle4f(0f, 0f, 1f, 0f)    // zweite Rotation
             ));
+            textDisplay.addScoreboardTag("chess_entity");
+            textDisplay.addScoreboardTag("chess_slot_" + game.id);
         }
     }
     static void visualizePossibleMoves(ChessGame game, JavaPlugin plugin){
@@ -160,8 +185,11 @@ public class GameVisualizer {
                 ));
             display.setGlowing(true);
             display.setVisibleByDefault(false);
+            display.addScoreboardTag("chess_entity");
+            display.addScoreboardTag("chess_slot_" + game.id);
+            display.addScoreboardTag("chess_temp");
             game.getCurrentPlayer().showEntity(plugin, display);
-            game.displays.add(display);
+            game.displays.add(display.getUniqueId());
             game.displayMoves.put(display.getUniqueId(), move);
 
             Location interactionLoc = game.location.clone();
@@ -178,11 +206,18 @@ public class GameVisualizer {
             // Move speichern
             game.moveClickEntities.add(interaction);
             game.displayMoves.put(interaction.getUniqueId(), move);
+            interaction.addScoreboardTag("chess_entity");
+            interaction.addScoreboardTag("chess_slot_" + game.id);
+            interaction.addScoreboardTag("chess_temp");
         }
     }
     static void clearDisplays(ChessGame game) {
-        for (BlockDisplay display : game.displays) {
-            display.remove();
+        for (UUID uuid : game.displays) {
+            Entity entity = Bukkit.getEntity(uuid);
+
+            if (entity != null) {
+                entity.remove();
+            }
         }
 
 
@@ -202,38 +237,42 @@ public class GameVisualizer {
             }
         }
     }
-    static void delete(ChessGame game){
+     static void delete(ChessGame game) {
+        removeOldSlotEntities(game.location, game.id);
+
         clearDisplays(game);
-        game.clockDisplay[0].remove();
-        game.clockDisplay[1].remove();
-        game.nameDisplay[0].remove();
-        game.nameDisplay[1].remove();
-        if (game.horseDisplays[0] != null){
-            game.horseDisplays[0].remove();
-        }
-        if (game.horseDisplays[1] != null){
-            game.horseDisplays[1].remove();
-        }
+
+        if (game.clockDisplay[0] != null) game.clockDisplay[0].remove();
+        if (game.clockDisplay[1] != null) game.clockDisplay[1].remove();
+
+        if (game.nameDisplay[0] != null) game.nameDisplay[0].remove();
+        if (game.nameDisplay[1] != null) game.nameDisplay[1].remove();
+
+        if (game.horseDisplays[0] != null) game.horseDisplays[0].remove();
+        if (game.horseDisplays[1] != null) game.horseDisplays[1].remove();
+
         for (TextDisplay textDisplay : game.textDisplays) {
-            textDisplay.remove();
+            if (textDisplay != null) {
+                textDisplay.remove();
+            }
         }
         game.textDisplays.clear();
-        for (ItemDisplay barrier : game.barrierDisplays){
-            barrier.remove();
-        }
+
+        game.displays.clear();
+        game.moveClickEntities.clear();
+        game.displayMoves.clear();
         game.barrierDisplays.clear();
+
         Location loc = game.location.clone();
-        Location airLoc = game.location.clone().add(0,1,0);
-        for (int x = 0; x<8; x++){
-            for (int z = 0; z<8; z++){
-                Location tempLoc = loc.clone();
-                Location tempAirLoc = airLoc.clone();
-                tempLoc.add(x,0,z);
-                tempAirLoc.add(x,0,z);
+        Location airLoc = game.location.clone().add(0, 1, 0);
+
+        for (int x = 0; x < 8; x++) {
+            for (int z = 0; z < 8; z++) {
+                Location tempLoc = loc.clone().add(x, 0, z);
+                Location tempAirLoc = airLoc.clone().add(x, 0, z);
+
                 tempAirLoc.getBlock().setType(Material.AIR);
-                Block block = tempLoc.getBlock();
-                block.setType(Material.AIR);
-                removeDisplaysAboveBlock(block);
+                tempLoc.getBlock().setType(Material.AIR);
             }
         }
     }
@@ -269,7 +308,7 @@ public class GameVisualizer {
                 tempAirLoc.add(x,0,z);
                 tempAirLoc.getBlock().setType(Material.AIR);
                 int bitLoc = BitField.bitLoc(x,z);
-                removeDisplaysAboveBlock(tempLoc.getBlock());
+                //removeDisplaysAboveBlock(tempLoc.getBlock());
                 if(tempWhite){
                     tempLoc.getBlock().setType(Material.POLISHED_DIORITE);
                 }
@@ -293,7 +332,6 @@ public class GameVisualizer {
         display.setShadowed(true);
         display.setSeeThrough(false);
         display.setGravity(false);
-
         return display;
     }
     public static String formatTicks(int ticks){
@@ -302,5 +340,41 @@ public class GameVisualizer {
         int seconds = (int) Math.floor(s - minutes * 60);
         String text = minutes + " : " + seconds;
         return text;
+    }
+    public static void removeOldSlotEntities(Location gameLoc, int slotId) {
+        if (gameLoc == null || gameLoc.getWorld() == null) return;
+
+        gameLoc.getChunk().load();
+
+        Location center = gameLoc.clone().add(4, 2, 4);
+        String slotTag = "chess_slot_" + slotId;
+
+        for (Entity entity : center.getWorld().getNearbyEntities(center, 16, 10, 16)) {
+            if (entity.getScoreboardTags().contains(slotTag)) {
+                entity.remove();
+            }
+        }
+    }
+    public static void removeTempEntitiesOnField(ChessGame game) {
+        if (game == null || game.location == null || game.location.getWorld() == null) {
+            return;
+        }
+
+        String slotTag = "chess_slot_" + game.id;
+        Location center = game.location.clone().add(4, 1.5, 4);
+
+        for (Entity entity : center.getWorld().getNearbyEntities(center, 6, 4, 6)) {
+            if (
+                    entity.getScoreboardTags().contains("chess_temp")
+                            && entity.getScoreboardTags().contains(slotTag)
+            ) {
+                entity.remove();
+            }
+        }
+
+        game.displays.clear();
+        game.moveClickEntities.clear();
+        game.displayMoves.clear();
+        game.barrierDisplays.clear();
     }
 }

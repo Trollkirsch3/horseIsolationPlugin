@@ -31,6 +31,7 @@ public class Main {
             double y = Double.parseDouble(getVariable("gameSlot." + i+ ".y"));
             double z = Double.parseDouble(getVariable("gameSlot." + i+ ".z"));
             Location gameLoc = new Location(world, x, y, z);
+            GameVisualizer.removeOldSlotEntities(gameLoc, i);
             ChessGame game = new ChessGame(gameLoc, null, null, i);
             GameVisualizer.visualizeField(game);
             freeGames.add(game);
@@ -40,7 +41,8 @@ public class Main {
         if (freeGames.isEmpty()) {
             return null;
         }
-        return freeGames.getFirst();
+        ChessGame game = freeGames.remove(0);
+        return game;
     }
     public void setVariable(String name, String value) {
         plugin.getConfig().set("variables." + name, value);
@@ -52,7 +54,7 @@ public class Main {
     public void reloadGames(){
         for (ChessGame game : freeGames) {
             if (game == null) continue;
-
+            GameVisualizer.removeOldSlotEntities(game.location, game.id);
             if (game.clockDisplay[0] != null) {
                 game.clockDisplay[0].remove();
             }
@@ -155,6 +157,7 @@ public class Main {
             }
 
             if (game.over || !game.players[game.playerToMove-1].isOnline()) {
+                GameVisualizer.clearDisplays(game);
                 if (game.deletionCooldown-- <= 0) {
                     String worldName = getVariable("spawn.world");
                     World world = Bukkit.getWorld(worldName);

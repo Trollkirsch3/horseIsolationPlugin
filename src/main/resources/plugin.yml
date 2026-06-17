@@ -5,24 +5,21 @@ main: org.plugin2.mcplugin2.McPlugin2
 api-version: '1.21.5'
 load: POSTWORLD
 commands:
-  spawnzombie:
-    description: Spawnt einen Zombie
-    usage: /spawnzombie
-  newGame:
-    description: erstellt ein neues Spiel
-    usage: /newGame <online player>
   setGameLoc:
-    description: setzt die location von einem spiel
-    usage: /setgameloc <name>
+    description: sets the location of a a game with the given id
+    permission: chess.admin
+    usage: /setgameloc <number>
   setMaxGames:
-    description: setzt die maximalen spiele
+    description: sets the max possible amount of games
+    permission: chess.admin
     usage: /setmaxgames <number>
   duel:
     description: sents a duel request to a player
     usage: /duel <player>
   acceptDuel:
-    description: sents a duel request to a player
+    description: accept a duel
     usage: /acceptDuel <player>
   setChessSpawn:
     description: sents the spawn where players will be tped to after a match is over
+    permission: chess.admin
     usage: /setChessSpawn

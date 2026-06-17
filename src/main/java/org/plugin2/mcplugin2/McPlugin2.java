@@ -14,7 +14,6 @@ public final class McPlugin2 extends JavaPlugin {
         main = new Main(this);
         getServer().getPluginManager().registerEvents(new InteractListener(main), this);
         getCommand("setchessspawn").setExecutor(new ChessCommands(main, this));
-        getCommand("newgame").setExecutor(new ChessCommands(main, this));
         getCommand("setgameloc").setExecutor(new ChessCommands(main, this));
         getCommand("setmaxgames").setExecutor(new ChessCommands(main, this));
         getCommand("duel").setExecutor(new ChessCommands(main, this));
