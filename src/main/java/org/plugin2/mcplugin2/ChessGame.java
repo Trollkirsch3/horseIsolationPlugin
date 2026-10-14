@@ -30,6 +30,7 @@ public class ChessGame {
     public List<Entity> moveClickEntities = new ArrayList<>();
     boolean over = false;
     int id;
+    boolean resultRecorded = false;
     public ChessGame(Location location, Player player1, Player player2, int gameId){
         ticksSpend [0] = 0;
         ticksSpend [1] = 0;

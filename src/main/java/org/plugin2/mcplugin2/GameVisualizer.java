@@ -137,7 +137,7 @@ public class GameVisualizer {
                     1.0f,
                     1.0f
             );
-            game.players [game.nextPlayer(game.playerToMove-1)].playSound(game.players [game.nextPlayer(game.playerToMove-1)].getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 1.0f);
+            game.players [game.nextPlayer(game.playerToMove)-1].playSound(game.players [game.nextPlayer(game.playerToMove-1)].getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 1.0f);
             game.players [game.playerToMove-1].playSound(game.players [game.playerToMove-1].getLocation(), Sound.ITEM_SHIELD_BREAK, 0.5f, 1.0f);
             spawnWinFirework(loc.clone().add(8,1,0));
             spawnWinFirework(loc.clone().add(0,1,0));
@@ -212,7 +212,9 @@ public class GameVisualizer {
         }
     }
     static void clearDisplays(ChessGame game) {
+
         for (UUID uuid : game.displays) {
+
             Entity entity = Bukkit.getEntity(uuid);
 
             if (entity != null) {
@@ -220,12 +222,15 @@ public class GameVisualizer {
             }
         }
 
+        game.displays.clear();
 
         for (Entity entity : game.moveClickEntities) {
-            entity.remove();
+            if (entity != null) {
+                entity.remove();
+            }
         }
-        game.moveClickEntities.clear();
 
+        game.moveClickEntities.clear();
         game.displayMoves.clear();
     }
     public static void removeDisplaysAboveBlock(Block block) {
@@ -337,8 +342,16 @@ public class GameVisualizer {
     public static String formatTicks(int ticks){
         double s = Math.floor(ticks/20);
         int minutes = (int) Math.floor(s /60);
+        String extra = "";
+        if (s < 10){
+            extra = " ";
+        }
+        String extraM = "";
+        if (minutes < 10){
+            extraM = " ";
+        }
         int seconds = (int) Math.floor(s - minutes * 60);
-        String text = minutes + " : " + seconds;
+        String text = extraM+minutes + "m " + extra+seconds +"s";
         return text;
     }
     public static void removeOldSlotEntities(Location gameLoc, int slotId) {

@@ -78,7 +78,7 @@ public class ChessCommands implements CommandExecutor {
                     sender.sendMessage("Only players can use this command.");
                     return true;
                 }
-                if (args.length > 0){
+                if (args.length == 0){
                     return false;
                 }
                 player = (Player) sender;
@@ -90,7 +90,7 @@ public class ChessCommands implements CommandExecutor {
                 break;
 
             case "setmaxgames":
-                if (args.length > 0){
+                if (args.length == 0){
                     return false;
                 }
                 int amount = Integer.parseInt(args [0]);
@@ -99,7 +99,7 @@ public class ChessCommands implements CommandExecutor {
                 main.reloadGames();
                 break;
             case "duel":
-                if (args.length > 0){
+                if (args.length == 0){
                     return false;
                 }
                 if (!(sender instanceof Player)) {
@@ -108,7 +108,7 @@ public class ChessCommands implements CommandExecutor {
                 }
                 player = (Player) sender;
                 Player challenged = Bukkit.getPlayer(args [0]);
-                if (sender == player){
+                if (challenged == player){
                     if (!sender.hasPermission("chess.admin")){
                         player.sendMessage("§cYou can not duel yourself");
                         return true;
@@ -126,10 +126,10 @@ public class ChessCommands implements CommandExecutor {
                     return true;
                 }
                 main.gameRequests.put(challenged.getUniqueId(), player.getUniqueId());
-                challenged.sendMessage("§a" + player.getName() + " challenged you to a duel: /duelaccept " + player.getName());
+                challenged.sendMessage("§a" + player.getName() + " challenged you to a duel: /acceptDuel " + player.getName());
                 break;
             case "acceptduel":
-                if (args.length > 0){
+                if (args.length == 0){
                     return false;
                 }
                 if (!(sender instanceof Player)) {
@@ -140,15 +140,6 @@ public class ChessCommands implements CommandExecutor {
                 if (requesterUUID == null) {
                     player.sendMessage("§cYou do not have any duel requests");
                     return true;
-                }
-                if (sender == player){
-                    if (!sender.hasPermission("chess.admin")){
-                        player.sendMessage("§cYou can not duel yourself");
-                        return true;
-                    }
-                    else{
-                        player.sendMessage("§aAdmins are allowed to play against them self");
-                    }
                 }
                 player2 = Bukkit.getPlayer(requesterUUID);
                 if (player2 == null || !player2.isOnline()) {

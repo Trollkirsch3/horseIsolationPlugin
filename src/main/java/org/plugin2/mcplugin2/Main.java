@@ -8,17 +8,24 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.plugin2.mcplugin2.databases.DatabaseManager;
+import org.plugin2.mcplugin2.databases.GameDatabase;
+import org.plugin2.mcplugin2.databases.PlayerDatabase;
 
 import java.util.*;
 
 public class Main {
-    JavaPlugin plugin;
+    McPlugin2 plugin;
     int maxSlot;
     ArrayList<ChessGame> freeGames = new ArrayList<>();
     ArrayList<ChessGame> games = new ArrayList<>();
     Map<UUID, UUID> gameRequests = new HashMap<>();
-    public Main (JavaPlugin plugin){
+
+    public Main (McPlugin2 plugin){
         this.plugin = plugin;
+
+
+
         maxSlot = plugin.getConfig().getInt("variables.maxSlots", 0);
         for (int i = 1; i <= maxSlot; i++){
             String worldName = getVariable("gameSlot." + i+ ".world");
@@ -106,7 +113,7 @@ public class Main {
             if (game == null) {
                 continue;
             }
-            int timelimit = 1200;
+            int timelimit = 1200*5;//1 min *5
 
             for (int p = 0; p < 2; p++) {
                 int remainingTicks = timelimit - game.ticksSpend[p];
@@ -156,29 +163,78 @@ public class Main {
                 }
             }
 
-            if (game.over || !game.players[game.playerToMove-1].isOnline()) {
-                GameVisualizer.clearDisplays(game);
-                if (game.deletionCooldown-- <= 0) {
-                    String worldName = getVariable("spawn.world");
-                    World world = Bukkit.getWorld(worldName);
-                    double x = Double.parseDouble(getVariable("spawn.x"));
-                    double y = Double.parseDouble(getVariable("spawn.y"));
-                    double z = Double.parseDouble(getVariable("spawn.z"));
-                    Location spawnLocation;
-                    if (world != null){
-                        spawnLocation = new Location (world, x, y, z);
-                    }
-                    else{
-                        spawnLocation = new Location (Bukkit.getWorld("world"), 1, 1, 1);
+            if (game.over || !game.players[game.playerToMove - 1].isOnline()) {
+
+                // Result only once
+                if (!game.resultRecorded) {
+
+                    game.resultRecorded = true;
+
+                    Player winnerPlayer =
+                            game.players[game.playerToMove % 2];
+
+                    Player loserPlayer =
+                            game.players[game.playerToMove - 1];
+
+                    UUID winner = winnerPlayer.getUniqueId();
+
+                    plugin.unsavedGameData.add(
+                            new GameData(
+                                    -1,
+                                    game.players[0].getUniqueId(),
+                                    game.players[1].getUniqueId(),
+                                    winner,
+                                    game.ticksSpend[0],
+                                    game.ticksSpend[1],
+                                    game.ticksSpend[0] + game.ticksSpend[1]
+                            )
+                    );
+
+                    PlayerData winnerData =
+                            plugin.players.get(winner);
+
+                    PlayerData loserData =
+                            plugin.players.get(loserPlayer.getUniqueId());
+
+                    if (winnerData != null) {
+                        winnerData.addWin();
                     }
 
-                    game.players [0].teleport(spawnLocation);
-                    game.players [1].teleport(spawnLocation);
+                    if (loserData != null) {
+                        loserData.addLoss();
+                    }
+                }
+
+
+                // Wait before deleting the game
+                if (game.deletionCooldown-- <= 0) {
+                    Location spawnLoc = getSpawnLoc();
+                    if (game.players[0] != null
+                            && game.players[0].isOnline()) {
+
+                        game.players[0].teleport(spawnLoc);
+                    }
+
+                    if (game.players[1] != null
+                            && game.players[1].isOnline()) {
+
+                        game.players[1].teleport(spawnLoc);
+                    }
+
+
                     GameVisualizer.delete(game);
 
                     games.remove(i);
 
-                    ChessGame emptyGame = new ChessGame(game.location, null, null, game.id);
+
+                    ChessGame emptyGame =
+                            new ChessGame(
+                                    game.location,
+                                    null,
+                                    null,
+                                    game.id
+                            );
+
                     freeGames.add(emptyGame);
 
                     GameVisualizer.visualizeField(emptyGame);
@@ -199,4 +255,40 @@ public class Main {
         }
         return false;
     }
+    public Location getSpawnLoc(){
+        String worldName =
+                getVariable("spawn.world");
+
+        World world =
+                Bukkit.getWorld(worldName);
+
+        double x = Double.parseDouble(
+                getVariable("spawn.x")
+        );
+
+        double y = Double.parseDouble(
+                getVariable("spawn.y")
+        );
+
+        double z = Double.parseDouble(
+                getVariable("spawn.z")
+        );
+
+        Location spawnLocation;
+
+        if (world != null) {
+            spawnLocation =
+                    new Location(world, x, y, z);
+        } else {
+            spawnLocation =
+                    new Location(
+                            Bukkit.getWorld("world"),
+                            1,
+                            1,
+                            1
+                    );
+        }
+        return spawnLocation;
+    }
+
 }

@@ -5,6 +5,13 @@ main: org.plugin2.mcplugin2.McPlugin2
 api-version: '1.21.5'
 load: POSTWORLD
 commands:
+  menu:
+    description: opens the main menu
+    usage: /menu
+  leaderboard:
+    description: opens the leaderboard
+    usage: /leaderboard
+
   setGameLoc:
     description: sets the location of a a game with the given id
     permission: chess.admin
